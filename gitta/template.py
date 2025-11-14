@@ -413,26 +413,33 @@ class Template:
         """
         if len(templates) == 0:
             return default
-        current_template = templates[0]
+        current_templates = set([templates[0]])
         default_non_slot_elements = (
             default.get_number_of_non_slots() if default is not None else None
         )
         for i in range(1, len(templates)):
-            try:
-                current_template = next(
+            merge_candidates = [
+                set(
                     Template.merge_templates_wagner_fischer(
-                        current_template,
+                        t,
                         templates[i],
                         minimal_variables=minimal_variables,
                         allow_empty_string=allow_empty_string,
                         min_non_slot_elements=default_non_slot_elements,
                     )
                 )
-            except StopIteration:
-                pass  # If doesn't have something as equally short as default, just continue
-            if default is not None and default.has_same_shape(current_template):
+                for t in current_templates
+            ]
+            current_templates = set().union(*merge_candidates)
+            if (
+                default is not None
+                and len(current_templates) == 1
+                and default.has_same_shape(next(iter(current_templates)))
+            ):
                 return default
-        return current_template
+        if len(current_templates) > 1:
+            return default
+        return next(iter(current_templates))
 
 
 # COVERING
