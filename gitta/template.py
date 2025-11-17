@@ -131,6 +131,7 @@ class Template:
         elements = [str(el) for el in self._elements]
         return detokenizer(elements)
 
+    @lru_cache()
     def __str__(self):
         return '"' + self.to_flat_string() + '"'
 
