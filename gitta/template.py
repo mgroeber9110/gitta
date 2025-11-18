@@ -33,6 +33,7 @@ default_named_slot_regex = re.compile("<([a-zA-Z0-9_-]+)>")
 class Template:
     def __init__(self, elements: Iterable[TemplateElement]):
         self._elements = tuple(elements)
+        self._flat_string = None
 
     # CHECKERS
     def is_flat_string(self) -> bool:
@@ -128,10 +129,11 @@ class Template:
         self,
         detokenizer: Callable[[List[str]], str] = TreebankWordDetokenizer().detokenize,
     ):
-        elements = [str(el) for el in self._elements]
-        return detokenizer(elements)
+        if not self._flat_string:
+            elements = [str(el) for el in self._elements]
+            self._flat_string = detokenizer(elements)
+        return self._flat_string
 
-    @lru_cache()
     def __str__(self):
         return '"' + self.to_flat_string() + '"'
 
