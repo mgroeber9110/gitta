@@ -453,12 +453,12 @@ def _covers(
         test_template_elements: Tuple[TemplateElement],
 ) -> bool:
     # If no more main template elements: check if test template is also empty, otherwise it doesn't cover
-    if len(main_template_elements) == 0:
-        return len(test_template_elements) == 0
+    if not main_template_elements:
+        return not test_template_elements
 
     # (main_template_elements not empty)
     # If test template elements is empty, check if the main template elements only contains slots
-    if len(test_template_elements) == 0:
+    if not test_template_elements:
         return all(element.is_slot() for element in main_template_elements)
 
     # (both lists have more than one element
@@ -468,8 +468,10 @@ def _covers(
     # If main is slot: check with and without current test token in front
     if main_first.is_slot():
         return (
-            # Slot covers no (more) elements
-                _covers(main_template_elements[1:], test_template_elements)
+                # Ending slot covers everything
+                len(main_template_elements)==1
+                # Slot covers no (more) elements
+                or _covers(main_template_elements[1:], test_template_elements)
                 # Slot covers this one and also potentialy future ones
                 or _covers(main_template_elements, test_template_elements[1:])
         )
