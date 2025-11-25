@@ -41,6 +41,8 @@ def has_similar_content(
     intersection_size = len(intersection) - (1 if both_contain_empty else 0)
     union = values_set_1.union(values_set_2)
     union_size = len(union) - (1 if any_contain_empty else 0)
+    if union_size == 0:
+        return True
 
     return intersection_size / union_size >= relative_similarity_threshold
 
