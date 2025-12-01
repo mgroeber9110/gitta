@@ -440,7 +440,9 @@ class Template:
                 and default.has_same_shape(next(iter(current_templates)))
             ):
                 return default
-        if len(current_templates) > 1:
+        if default is not None:
+            current_templates = [t for t in current_templates if default.covers(t)]
+        if not current_templates:
             return default
         return next(iter(current_templates))
 
